@@ -30,7 +30,7 @@ const ScrollToTopButton = () => {
 
   return (
     isVisible && (
-      <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-4">
+      <div className="fixed bottom-14 right-6 z-50 flex flex-col gap-4">
         {/* WhatsApp Button */}
         <a
           href="https://wa.me/917028996666?text=Hello%20Rudra%20Arts!%20I%20am%20interested%20in%20your%20products."
@@ -44,7 +44,7 @@ const ScrollToTopButton = () => {
         {/* Scroll To Top Button */}
         <button
           onClick={scrollToTop}
-          className="p-3 rounded-full bg-[#D4AF37] text-white shadow-lg hover:bg-yellow-500 transition-all duration-300"
+          className="p-3 rounded-full bg-customBrown text-white shadow-lg hover:bg-yellow-500 transition-all duration-300"
         >
           <FaArrowUp className="text-xl" />
         </button>

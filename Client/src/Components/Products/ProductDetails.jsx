@@ -389,26 +389,34 @@ const ProductDetails = () => {
                 </p>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                <button
+              <div className="flex flex-row sm:flex-col gap-4 pt-4">
+                {/* Add to Cart Button */}
+                <motion.button
+                  whileTap={{ scale: 0.95 }}
+                  whileHover={{ scale: 1.03 }}
+                  transition={{ type: "spring", stiffness: 300 }}
                   onClick={() => handleAddToCart(product)}
                   className="w-50 bg-orange-600 hover:bg-orange-700 text-white font-medium py-3 px-6 rounded-lg transition duration-300 shadow-md hover:shadow-lg"
                 >
                   Add to cart
-                </button>
+                </motion.button>
+
                 {/* Share Button */}
-                <button
+                <motion.button
+                  whileTap={{ scale: 0.95 }}
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ type: "spring", stiffness: 300 }}
                   onClick={() => {
                     const productUrl = `${window.location.origin}/product-details/${id}`;
                     navigator.clipboard.writeText(productUrl);
                     setCopied(true);
                     setTimeout(() => setCopied(false), 2000);
                   }}
-                  className="flex items-center space-x-2 text-gray-600 hover:text-orange-600 transition-colors duration-200"
+                  className="flex items-center justify-center gap-2 bg-customBrown hover:bg-orange-700 text-white hover:text-white py-3 px-3 rounded-xl transition duration-300 shadow-md hover:shadow-lg"
                 >
-                  <FiShare2 className="text-xl" />
-                  <span className="text-sm">Share</span>
-                </button>
+                  <FiShare2 className="text-2xl" />
+                  {/* <span className="text-sm">Share</span> */}
+                </motion.button>
               </div>
             </div>
           </div>

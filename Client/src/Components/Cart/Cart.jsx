@@ -153,7 +153,7 @@ const Cart = () => {
   if (!isCartLoading && cartItems.length === 0) {
     return (
       <motion.div
-        className="flex flex-col justify-center items-center min-h-[60vh] text-center p-6 bg-gradient-to-b from-amber-50 to-amber-100 mt-20"
+        className="flex flex-col justify-center items-center min-h-[60vh] text-center p-6 bg-gradient-to-b from-amber-50 to-amber-100 mt-10"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
@@ -181,22 +181,24 @@ const Cart = () => {
           Looks like you haven't added anything to your cart yet. Start shopping
           to see items here.
         </motion.p>
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => navigate("/products")}
-          className="bg-orange-600 hover:bg-orange-700 text-white px-6 py-3 rounded-lg font-medium"
-        >
-          Shop Now
-        </motion.button>
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => navigate("/products")}
-          className="bg-orange-600 hover:bg-orange-700 text-white px-6 py-3 rounded-lg font-medium"
-        >
-          Your Products
-        </motion.button>
+        <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto justify-center">
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => navigate("/products")}
+            className="bg-orange-600 hover:bg-orange-700 text-white px-6 py-3 rounded-lg font-medium w-full sm:w-auto"
+          >
+            Shop Now
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => navigate("/your-products")}
+            className="bg-orange-600 hover:bg-orange-700 text-white px-6 py-3 rounded-lg font-medium w-full sm:w-auto"
+          >
+            Your Products
+          </motion.button>
+        </div>
       </motion.div>
     );
   }

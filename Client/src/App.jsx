@@ -16,7 +16,7 @@ import PrivateRoute from "./Components/PrivateRoute/PrivateRoute";
 import { useEffect } from "react";
 import Cookies from "js-cookie";
 import ProductManager from "./Components/Dashboard/ProductsManager";
-import ScrollToTopButton from "./Components/ScrollToTopButton/ScrollToTopButton"; // Import ScrollToTopButton
+import ScrollToTopButton from "./Components/ScrollToTopButton/ScrollToTopButton";
 import AddProduct from "./Components/Dashboard/AddProduct";
 import FullAbout from "./Components/About/FullAbout";
 import FullNews from "./Components/News/FullNews";
@@ -39,6 +39,7 @@ import SideBySidePortrait from "./Components/PoliticianPhotos/SideBySidePortrait
 import HeritageExperience from "./Components/HeritageExperience/HeritageExperience";
 import AwardsComponent from "./Components/AwardsComponent/AwardsComponent";
 import YourProducts from "./Components/Cart/YourProducts";
+import FooterPlate from "./Components/FooterPlate/FooterPlate";
 
 const App = () => {
   const location = useLocation();
@@ -203,6 +204,11 @@ const App = () => {
 
       {/* Conditionally render ScrollToTopButton */}
       {shouldShowScrollButton && <ScrollToTopButton />}
+
+      <FooterPlate
+      // onSearchToggle={handleSearchToggle}
+      // onFilterToggle={handleFilterToggle}
+      />
     </>
   );
 };
