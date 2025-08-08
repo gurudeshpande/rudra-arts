@@ -18,4 +18,4 @@ const protectRoute = (req, res, next) => {
   }
 };
 
-module.exports = protectRoute;
+export default protectRoute;

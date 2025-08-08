@@ -45,6 +45,7 @@ const ProductManager = () => {
   const [stockFilter, setStockFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [draggedImageIndex, setDraggedImageIndex] = useState(null);
+  const [newFiles, setNewFiles] = useState([]); // Track newly uploaded files
   const navigate = useNavigate();
 
   const categories = [
@@ -160,39 +161,52 @@ const ProductManager = () => {
   };
 
   // Handle edit save
+  // Handle edit save
   const handleEditSave = async () => {
     try {
+      const formData = new FormData();
+
+      // Append product data
+      formData.append("product_name", editFormData.pname);
+      formData.append("product_description", editFormData.pDescription);
+      formData.append("product_price", editFormData.pprice);
+      formData.append("product_size", editFormData.psize);
+      formData.append("product_category", editFormData.pcategory);
+      formData.append("product_discount", editFormData.pdiscount || 0);
+      formData.append("inStock", editFormData.inStock);
+
+      // Prepare image data - use original URLs where no new image was selected
+      const imageData = editFormData.pimage.map((img, index) => {
+        // If this is a blob URL, it means we have a new file to upload
+        return img?.startsWith("blob:") ? null : img;
+      });
+      formData.append("product_image", JSON.stringify(imageData));
+
+      // Track which positions have new images
+      const imagePositions = [];
+      newFiles.forEach((file, index) => {
+        if (file instanceof File) {
+          formData.append("pimages", file);
+          imagePositions.push(index);
+        }
+      });
+      formData.append("imagePositions", JSON.stringify(imagePositions));
+
       const res = await fetch(
         `${import.meta.env.VITE_BASE_URL_PRODUCTION}/api/products/${
           editProduct._id
         }`,
         {
           method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            product_name: editFormData.pname,
-            product_description: editFormData.pDescription,
-            product_price: editFormData.pprice,
-            product_size: editFormData.psize,
-            product_category: editFormData.pcategory,
-            product_image: editFormData.pimage.filter(
-              (img) => typeof img === "string" && img.startsWith("http")
-            ),
-            // Remove any undefined/null images
-            product_discount: editFormData.pdiscount || 0,
-            inStock: editFormData.inStock,
-          }),
+          body: formData,
         }
       );
 
-      if (!res.ok) {
-        throw new Error("Failed to update product");
-      }
+      if (!res.ok) throw new Error("Failed to update product");
 
       const data = await res.json();
       setEditProduct(null);
+      setNewFiles([]);
       fetchProducts();
       toast.success("Product updated successfully");
     } catch (err) {
@@ -203,7 +217,14 @@ const ProductManager = () => {
 
   // Handle edit cancel
   const handleEditCancel = () => {
+    // Clean up any object URLs we created for previews
+    editFormData.pimage.forEach((img, index) => {
+      if (newFiles[index] && img.startsWith("blob:")) {
+        URL.revokeObjectURL(img);
+      }
+    });
     setEditProduct(null);
+    setNewFiles([]);
   };
 
   // Handle form field changes
@@ -216,6 +237,7 @@ const ProductManager = () => {
   };
 
   // Handle image upload when clicked
+  // In your handleImageClick function:
   const handleImageClick = async (index) => {
     const input = document.createElement("input");
     input.type = "file";
@@ -225,32 +247,27 @@ const ProductManager = () => {
       const file = e.target.files[0];
       if (!file) return;
 
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("upload_preset", "rudra-arts");
-
       try {
-        const res = await fetch(
-          `https://api.cloudinary.com/v1_1/${
-            import.meta.env.CLOUD_NAME
-          }/image/Rudra-Artss`,
-          {
-            method: "POST",
-            body: formData,
-          }
-        );
+        // Create preview URL
+        const previewUrl = URL.createObjectURL(file);
 
-        const data = await res.json();
-        const newImages = [...editFormData.pimage];
-        newImages[index] = data.secure_url;
+        // Update state with preview URL
         setEditFormData((prev) => ({
           ...prev,
-          pimage: newImages,
+          pimage: prev.pimage.map((img, i) => (i === index ? previewUrl : img)),
         }));
-        toast.success("Image updated successfully");
+
+        // Store the actual file for upload
+        setNewFiles((prev) => {
+          const updated = [...prev];
+          updated[index] = file;
+          return updated;
+        });
+
+        toast.success("Image selected for upload");
       } catch (error) {
-        console.error("Upload error:", error);
-        toast.error("Image upload failed");
+        console.error("Image selection failed:", error);
+        toast.error("Failed to select image");
       }
     };
 
@@ -258,14 +275,24 @@ const ProductManager = () => {
   };
 
   const handleImageDelete = (index) => {
+    // Clean up the object URL if it's a preview
+    if (editFormData.pimage[index]?.startsWith("blob:")) {
+      URL.revokeObjectURL(editFormData.pimage[index]);
+    }
+
     const newImages = [...editFormData.pimage];
-    newImages[index] = null; // Set to null instead of removing to maintain positions
+    newImages[index] = null;
+
+    const updatedNewFiles = [...newFiles];
+    updatedNewFiles[index] = null;
+
     setEditFormData((prev) => ({
       ...prev,
       pimage: newImages,
     }));
-  };
 
+    setNewFiles(updatedNewFiles);
+  };
   // Drag and drop handlers for image reordering
   const handleDragStart = (e, index) => {
     e.dataTransfer.setData("text/plain", index);
@@ -340,6 +367,17 @@ const ProductManager = () => {
   useEffect(() => {
     fetchProducts();
   }, []);
+
+  useEffect(() => {
+    return () => {
+      // Clean up any blob URLs when component unmounts
+      editFormData.pimage.forEach((img) => {
+        if (img?.startsWith("blob:")) {
+          URL.revokeObjectURL(img);
+        }
+      });
+    };
+  }, [editFormData.pimage]);
 
   return (
     <DashboardLayout>
@@ -459,10 +497,12 @@ const ProductManager = () => {
                       <Avatar
                         variant="rounded"
                         src={
-                          product.product_image?.[0].replace(
-                            "/upload/",
-                            "/upload/w_400,q_auto,f_auto/"
-                          ) || "/placeholder.jpg"
+                          product.product_image?.[0]
+                            ? product.product_image[0].replace(
+                                "/upload/",
+                                "/upload/w_400,q_auto,f_auto/"
+                              )
+                            : "/placeholder.jpg"
                         }
                         loading="lazy"
                         alt={product.product_name}

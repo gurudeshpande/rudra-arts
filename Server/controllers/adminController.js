@@ -1,8 +1,7 @@
-// controllers/adminController.js
-const Admin = require("../models/Admin");
-const bcrypt = require("bcryptjs");
+import Admin from "../models/Admin.js";
+import bcrypt from "bcryptjs";
 
-exports.adminLogin = async (req, res) => {
+const adminLogin = async (req, res) => {
   const { username, password } = req.body;
 
   try {
@@ -30,3 +29,5 @@ exports.adminLogin = async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 };
+
+export default adminLogin;

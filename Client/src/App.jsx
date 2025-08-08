@@ -121,14 +121,14 @@ const App = () => {
         <Route path="/Blogs" element={<Blogs />} />
         <Route path="/news" element={<FullNews />} />
         <Route path="/Products" element={<AllProducts />} />
-        <Route path="/products/category/:category" element={<AllProducts />} />
+        <Route path="/products/category" element={<AllProducts />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/product-details/:id" element={<ProductDetails />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/login" element={<Login />} />
         <Route path="/Lorem" element={<Lorem />} />
         <Route path="/franchises" element={<FranchiseCarousel />} />
-        <Route path="/blogs/:id" element={<BlogDetail />} />
+        <Route path="/blogs" element={<BlogDetail />} />
         {/* <Route path="/ourteam" element={<TeamComponent />} /> */}
         <Route path="/ourteam" element={<BTS />} />
         <Route path="/explore-process" element={<ExploreProcess />} />
