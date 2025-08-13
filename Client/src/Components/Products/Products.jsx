@@ -13,7 +13,7 @@ const Product = () => {
       name: "Shastradhari Maharaj - Coloured",
       price: "5,100",
       image:
-        "https://res.cloudinary.com/dxpf6dhn1/image/upload/v1753160152/Rudra-artss/nypxd22tvuwrqhyss4jp.jpg",
+        "https://res.cloudinary.com/dquyimnmd/image/upload/WhatsApp_Image_2025-08-07_at_23.06.09_442f3653_mactxn.jpg",
       description: "Shastradhari Maharaj - Coloured",
     },
     {
@@ -21,7 +21,7 @@ const Product = () => {
       name: "Yugnirmate Maharaj - Coloured",
       price: "13,850",
       image:
-        "https://res.cloudinary.com/dxpf6dhn1/image/upload/v1753126539/Rudra-artss/ysn19lovoxberh9xf2am.jpg",
+        "https://res.cloudinary.com/dquyimnmd/image/upload/w_400,q_auto,f_auto/v1754600489/Rudra-artss/yxffeiozw4y6vyibqvqi.jpg",
       description: "Yugnirmate Maharaj - Coloured",
     },
     {
@@ -29,7 +29,7 @@ const Product = () => {
       name: "Ashwarudh Maharaj",
       price: "12,850",
       image:
-        "https://res.cloudinary.com/dxpf6dhn1/image/upload/v1752952460/Rudra-artss/bihfk5pz8wliw3ephpok.jpg",
+        "https://res.cloudinary.com/dquyimnmd/image/upload/w_400,q_auto,f_auto/v1754599414/Rudra-artss/ub1nt41xw4hzofhzvgtw.jpg",
       description: "Ashwarudh Maharaj",
     },
     {
@@ -37,7 +37,7 @@ const Product = () => {
       name: "Roudra Shambhu Chatrapati - Coloured",
       price: "5,100",
       image:
-        "https://res.cloudinary.com/dxpf6dhn1/image/upload/v1753128245/Rudra-artss/xupbfio1adrcgf4ntwep.jpg",
+        "https://res.cloudinary.com/dquyimnmd/image/upload/w_400,q_auto,f_auto/v1754677586/Rudra-artss/c1rztgic04evxizhilwy.jpg",
       description: "Roudra Shambhu Chatrapati - Coloured",
     },
   ];

@@ -21,6 +21,14 @@ const Home = () => {
 
   const slides = [
     {
+      type: "banner",
+      image: isMobile
+        ? "/images/mobile/banner1-mobile.jpg"
+        : "/images/banner1.jpg",
+      // No title or button for the banner
+    },
+
+    {
       type: "product",
       image: isMobile
         ? "/images/mobile/WhatsApp-Image-2025-07-19-at-15.32.21_918c279f-mobile.jpg"
@@ -47,7 +55,7 @@ const Home = () => {
       buttonText: "Read More",
     },
     {
-      type: "about",
+      type: "Collection",
       image: isMobile ? "/images/mobile/dhoop-mobile.jpg" : "/images/dhoop.jpg",
       title: "Explore Our Dhoop Collection",
       buttonText: "Shop Now",
@@ -55,11 +63,18 @@ const Home = () => {
   ];
 
   const handleSlideAction = () => {
-    if (slides[currentSlide].type === "product") {
+    if (
+      slides[currentSlide].type === "product" ||
+      slides[currentSlide].type === "Collection"
+    ) {
       navigate("/Products");
-    } else {
+    } else if (
+      slides[currentSlide].type === "about" ||
+      slides[currentSlide].type === "achievement"
+    ) {
       navigate("/About");
     }
+    // No action for banner slide
   };
 
   const startSlider = () => {
@@ -140,24 +155,40 @@ const Home = () => {
         onTouchEnd={handleTouchEnd}
       >
         <div
-          className="flex h-full transition-transform duration-500 ease-out" // Faster transition on mobile
+          className="flex h-full transition-transform duration-500 ease-out"
           style={{ transform: `translateX(-${currentSlide * 100}%)` }}
         >
           {slides.map((slide, index) => (
             <div key={index} className="w-full h-full flex-shrink-0 relative">
-              <img
-                src={slide.image}
-                alt={`Slide ${index + 1}`}
-                className="w-full h-full object-cover brightness-[0.6]"
-                loading={index === 0 ? "eager" : "lazy"}
-                decoding="async"
-              />
+              {slide.type === "banner" ? (
+                // Special handling for banner image
+                <div className="w-full h-full flex items-center justify-center">
+                  <img
+                    src={slide.image}
+                    alt={`Slide ${index + 1}`}
+                    className={`h-full w-auto max-w-none ${
+                      isMobile ? "object-contain" : "object-cover"
+                    }`}
+                    loading="eager"
+                    decoding="async"
+                  />
+                </div>
+              ) : (
+                // Regular handling for other slides
+                <img
+                  src={slide.image}
+                  alt={`Slide ${index + 1}`}
+                  className="w-full h-full object-cover brightness-[0.6]"
+                  loading={index === 0 ? "eager" : "lazy"}
+                  decoding="async"
+                />
+              )}
             </div>
           ))}
         </div>
       </div>
 
-      {/* Mobile Controls - Positioned for thumb reach */}
+      {/* Controls (same as before) */}
       {isMobile && (
         <>
           <button
@@ -184,7 +215,6 @@ const Home = () => {
         </>
       )}
 
-      {/* Desktop Controls (unchanged) */}
       {!isMobile && (
         <>
           <button
@@ -223,206 +253,209 @@ const Home = () => {
             animate={{ opacity: currentSlide === index ? 1 : 0 }}
             transition={{ duration: 0.5 }}
           >
-            <div className="w-full h-full flex flex-col justify-center">
-              {index === 0 ? (
-                <div
-                  className={`w-full flex ${
-                    isMobile
-                      ? "justify-center text-center"
-                      : "justify-start text-left"
-                  } items-center px-4 sm:pl-8 md:pl-16 lg:pl-24 h-full`}
-                >
+            {/* Skip content rendering for banner slide (index 0) */}
+            {index !== 0 && (
+              <div className="w-full h-full flex flex-col justify-center">
+                {index === 1 ? (
                   <div
-                    className={`flex flex-col ${
-                      isMobile ? "items-center" : "items-start"
-                    } space-y-4 sm:space-y-6 max-w-2xl`}
+                    className={`w-full flex ${
+                      isMobile
+                        ? "justify-center text-center"
+                        : "justify-start text-left"
+                    } items-center px-4 sm:pl-8 md:pl-16 lg:pl-24 h-full`}
                   >
-                    <motion.h1
-                      className={`${
-                        isMobile
-                          ? "text-2xl"
-                          : "text-3xl sm:text-4xl md:text-5xl lg:text-6xl"
-                      } font-normal font-times`}
-                      initial={{ opacity: 0, x: isMobile ? 0 : -50 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 1 }}
+                    <div
+                      className={`flex flex-col ${
+                        isMobile ? "items-center" : "items-start"
+                      } space-y-4 sm:space-y-6 max-w-2xl`}
                     >
-                      {isMobile ? (
-                        "Explore Our Collection"
-                      ) : (
-                        <>
-                          Explore <br />
-                          Our Collection
-                        </>
-                      )}
-                    </motion.h1>
-
-                    {slide.description && !isMobile && (
-                      <motion.p
-                        className="text-base sm:text-lg md:text-xl lg:text-2xl leading-relaxed font-times"
-                        initial={{ opacity: 0, x: -50 }}
+                      <motion.h1
+                        className={`${
+                          isMobile
+                            ? "text-2xl"
+                            : "text-3xl sm:text-4xl md:text-5xl lg:text-6xl"
+                        } font-normal font-times`}
+                        initial={{ opacity: 0, x: isMobile ? 0 : -50 }}
                         animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.3, duration: 1 }}
+                        transition={{ duration: 1 }}
                       >
-                        {slide.description}
-                      </motion.p>
-                    )}
+                        {isMobile ? (
+                          "Explore Our Collection"
+                        ) : (
+                          <>
+                            Explore <br />
+                            Our Collection
+                          </>
+                        )}
+                      </motion.h1>
 
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: 0.6, duration: 0.6 }}
-                    >
-                      <Link to="/Products">
-                        <button
-                          onClick={handleSlideAction}
-                          className={`flex items-center gap-2 bg-customBrown text-white hover:bg-red-900 transition duration-500 ${
-                            isMobile
-                              ? "px-4 py-1.5 text-sm"
-                              : "px-6 py-2 sm:px-8 sm:py-3 text-base sm:text-lg"
-                          } font-medium rounded font-times`}
+                      {slide.description && !isMobile && (
+                        <motion.p
+                          className="text-base sm:text-lg md:text-xl lg:text-2xl leading-relaxed font-times"
+                          initial={{ opacity: 0, x: -50 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.3, duration: 1 }}
                         >
-                          {!isMobile && (
-                            <img
-                              src="/images/dhaltalwar.png"
-                              alt="Left Icon"
-                              className="w-4 h-4 sm:w-5 sm:h-5 invert"
-                            />
-                          )}
-                          {slide.buttonText}
-                          {!isMobile && (
-                            <img
-                              src="/images/dhaltalwar.png"
-                              alt="Right Icon"
-                              className="w-4 h-4 sm:w-5 sm:h-5 invert"
-                            />
-                          )}
-                        </button>
-                      </Link>
-                    </motion.div>
+                          {slide.description}
+                        </motion.p>
+                      )}
+
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 0.6, duration: 0.6 }}
+                      >
+                        <Link to="/Products">
+                          <button
+                            onClick={handleSlideAction}
+                            className={`flex items-center gap-2 bg-customBrown text-white hover:bg-red-900 transition duration-500 ${
+                              isMobile
+                                ? "px-4 py-1.5 text-sm"
+                                : "px-6 py-2 sm:px-8 sm:py-3 text-base sm:text-lg"
+                            } font-medium rounded font-times`}
+                          >
+                            {!isMobile && (
+                              <img
+                                src="/images/dhaltalwar.png"
+                                alt="Left Icon"
+                                className="w-4 h-4 sm:w-5 sm:h-5 invert"
+                              />
+                            )}
+                            {slide.buttonText}
+                            {!isMobile && (
+                              <img
+                                src="/images/dhaltalwar.png"
+                                alt="Right Icon"
+                                className="w-4 h-4 sm:w-5 sm:h-5 invert"
+                              />
+                            )}
+                          </button>
+                        </Link>
+                      </motion.div>
+                    </div>
                   </div>
-                </div>
-              ) : index === 3 ? (
-                <div
-                  className={`w-full flex ${
-                    isMobile
-                      ? "justify-center text-center"
-                      : "justify-end text-right"
-                  } items-center px-4 sm:pr-8 md:pr-16 lg:pr-24 h-full`}
-                >
+                ) : index === 4 ? (
                   <div
-                    className={`flex flex-col ${
-                      isMobile ? "items-center" : "items-end"
-                    } space-y-4 sm:space-y-6 max-w-2xl`}
+                    className={`w-full flex ${
+                      isMobile
+                        ? "justify-center text-center"
+                        : "justify-end text-right"
+                    } items-center px-4 sm:pr-8 md:pr-16 lg:pr-24 h-full`}
                   >
+                    <div
+                      className={`flex flex-col ${
+                        isMobile ? "items-center" : "items-end"
+                      } space-y-4 sm:space-y-6 max-w-2xl`}
+                    >
+                      <motion.h1
+                        className={`${
+                          isMobile
+                            ? "text-2xl"
+                            : "text-3xl sm:text-4xl md:text-5xl lg:text-6xl"
+                        } font-normal font-times`}
+                        initial={{ opacity: 0, x: isMobile ? 0 : 50 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 1 }}
+                      >
+                        {slide.title}
+                      </motion.h1>
+
+                      {slide.description && !isMobile && (
+                        <motion.p
+                          className="text-base sm:text-lg md:text-xl lg:text-2xl leading-relaxed font-times"
+                          initial={{ opacity: 0, x: 50 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.3, duration: 1 }}
+                        >
+                          {slide.description}
+                        </motion.p>
+                      )}
+
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 0.6, duration: 0.6 }}
+                      >
+                        <Link to="/Products">
+                          <button
+                            onClick={handleSlideAction}
+                            className={`flex items-center gap-2 bg-customBrown text-white hover:bg-red-900 transition duration-500 ${
+                              isMobile
+                                ? "px-4 py-1.5 text-sm"
+                                : "px-6 py-2 sm:px-8 sm:py-3 text-base sm:text-lg"
+                            } font-medium rounded font-times`}
+                          >
+                            {!isMobile && (
+                              <img
+                                src="/images/dhaltalwar.png"
+                                alt="Left Icon"
+                                className="w-4 h-4 sm:w-5 sm:h-5 invert"
+                              />
+                            )}
+                            {slide.buttonText}
+                            {!isMobile && (
+                              <img
+                                src="/images/dhaltalwar.png"
+                                alt="Right Icon"
+                                className="w-4 h-4 sm:w-5 sm:h-5 invert"
+                              />
+                            )}
+                          </button>
+                        </Link>
+                      </motion.div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center px-4">
                     <motion.h1
+                      initial={{ opacity: 0, y: -40 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 1 }}
                       className={`${
                         isMobile
-                          ? "text-2xl"
-                          : "text-3xl sm:text-4xl md:text-5xl lg:text-6xl"
-                      } font-normal font-times`}
-                      initial={{ opacity: 0, x: isMobile ? 0 : 50 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 1 }}
+                          ? "text-2xl mt-20"
+                          : "text-3xl sm:text-4xl md:text-5xl lg:text-6xl mt-[6rem] sm:mt-[10rem]"
+                      } font-normal font-times mb-3 sm:mb-4`}
                     >
                       {slide.title}
                     </motion.h1>
 
-                    {slide.description && !isMobile && (
+                    {slide.description && (
                       <motion.p
-                        className="text-base sm:text-lg md:text-xl lg:text-2xl leading-relaxed font-times"
-                        initial={{ opacity: 0, x: 50 }}
-                        animate={{ opacity: 1, x: 0 }}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.3, duration: 1 }}
+                        className={`${
+                          isMobile
+                            ? "text-sm line-clamp-3"
+                            : "text-base sm:text-lg md:text-xl lg:text-2xl"
+                        } leading-relaxed font-times mb-4 sm:mb-8 max-w-3xl mx-auto`}
                       >
                         {slide.description}
                       </motion.p>
                     )}
 
                     <motion.div
-                      initial={{ opacity: 0, scale: 0.9 }}
+                      initial={{ opacity: 0, scale: 0.8 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: 0.6, duration: 0.6 }}
+                      transition={{ delay: 0.6, duration: 0.5 }}
+                      className="flex justify-center"
                     >
-                      <Link to="/Products">
-                        <button
-                          onClick={handleSlideAction}
-                          className={`flex items-center gap-2 bg-customBrown text-white hover:bg-red-900 transition duration-500 ${
-                            isMobile
-                              ? "px-4 py-1.5 text-sm"
-                              : "px-6 py-2 sm:px-8 sm:py-3 text-base sm:text-lg"
-                          } font-medium rounded font-times`}
-                        >
-                          {!isMobile && (
-                            <img
-                              src="/images/dhaltalwar.png"
-                              alt="Left Icon"
-                              className="w-4 h-4 sm:w-5 sm:h-5 invert"
-                            />
-                          )}
-                          {slide.buttonText}
-                          {!isMobile && (
-                            <img
-                              src="/images/dhaltalwar.png"
-                              alt="Right Icon"
-                              className="w-4 h-4 sm:w-5 sm:h-5 invert"
-                            />
-                          )}
-                        </button>
-                      </Link>
+                      <button
+                        onClick={handleSlideAction}
+                        className={`flex items-center gap-2 bg-customBrown text-white hover:bg-red-900 hover:text-white transition duration-500 ${
+                          isMobile
+                            ? "px-4 py-1.5 text-sm"
+                            : "px-6 py-2 sm:px-8 sm:py-3 text-base sm:text-lg"
+                        } font-medium rounded font-times`}
+                      >
+                        {slide.buttonText}
+                      </button>
                     </motion.div>
                   </div>
-                </div>
-              ) : (
-                <div className="text-center px-4">
-                  <motion.h1
-                    initial={{ opacity: 0, y: -40 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 1 }}
-                    className={`${
-                      isMobile
-                        ? "text-2xl mt-20"
-                        : "text-3xl sm:text-4xl md:text-5xl lg:text-6xl mt-[6rem] sm:mt-[10rem]"
-                    } font-normal font-times mb-3 sm:mb-4`}
-                  >
-                    {slide.title}
-                  </motion.h1>
-
-                  {slide.description && (
-                    <motion.p
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.3, duration: 1 }}
-                      className={`${
-                        isMobile
-                          ? "text-sm line-clamp-3"
-                          : "text-base sm:text-lg md:text-xl lg:text-2xl"
-                      } leading-relaxed font-times mb-4 sm:mb-8 max-w-3xl mx-auto`}
-                    >
-                      {slide.description}
-                    </motion.p>
-                  )}
-
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.6, duration: 0.5 }}
-                    className="flex justify-center"
-                  >
-                    <button
-                      onClick={handleSlideAction}
-                      className={`flex items-center gap-2 bg-customBrown text-white hover:bg-red-900 hover:text-white transition duration-500 ${
-                        isMobile
-                          ? "px-4 py-1.5 text-sm"
-                          : "px-6 py-2 sm:px-8 sm:py-3 text-base sm:text-lg"
-                      } font-medium rounded font-times`}
-                    >
-                      {slide.buttonText}
-                    </button>
-                  </motion.div>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
+            )}
           </motion.div>
         ))}
       </div>
@@ -431,4 +464,3 @@ const Home = () => {
 };
 
 export default Home;
-  
