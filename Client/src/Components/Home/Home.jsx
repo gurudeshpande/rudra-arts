@@ -57,7 +57,7 @@ const Home = () => {
     {
       type: "Collection",
       image: isMobile ? "/images/mobile/dhoop-mobile.jpg" : "/images/dhoop.jpg",
-      title: "Explore Our Dhoop Collection",
+      title: "Explore Our Dhop Collection",
       buttonText: "Shop Now",
     },
   ];
