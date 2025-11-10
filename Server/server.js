@@ -8,10 +8,6 @@ import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
 
 // Routes
-import galleryRoutes from "./routes/gallery.js";
-import aboutRoutes from "./routes/about.js";
-import servicesRoutes from "./routes/services.js";
-import contactRoutes from "./routes/contact.js";
 import adminRoutes from "./routes/admin.js";
 import productRoutes from "./routes/products.js";
 import newsRoutes from "./routes/news.js";
@@ -55,9 +51,9 @@ const __dirname = path.dirname(__filename);
 app.use(express.static(path.join(__dirname, "dist")));
 
 // Catch-all to serve index.html for React Router
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "dist", "index.html"));
-});
+// app.get("*", (req, res) => {
+//   res.sendFile(path.join(__dirname, "dist", "index.html"));
+// });
 
 mongoose
   .connect(process.env.MONGO_URI)
@@ -65,10 +61,6 @@ mongoose
   .catch((err) => console.error("MongoDB connection failed:", err));
 
 // Use Routes
-app.use("/api/gallery", galleryRoutes);
-app.use("/api/about", aboutRoutes);
-app.use("/api/services", servicesRoutes);
-app.use("/api/contact", contactRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/news", newsRoutes);

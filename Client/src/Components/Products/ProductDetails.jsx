@@ -256,12 +256,7 @@ const ProductDetails = () => {
                 style={isDragging ? { cursor: "grabbing" } : {}}
               >
                 <img
-                  src={
-                    selectedImage.replace(
-                      "/upload/",
-                      "/upload/w_400,q_auto,f_auto/"
-                    ) || "/placeholder.jpg"
-                  }
+                  src={selectedImage}
                   alt="Product"
                   loading="lazy"
                   className="object-contain transition-transform duration-300"
@@ -340,12 +335,7 @@ const ProductDetails = () => {
                       }`}
                     >
                       <img
-                        src={
-                          img.replace(
-                            "/upload/",
-                            "/upload/w_400,q_auto,f_auto/"
-                          ) || "/placeholder.jpg"
-                        }
+                        src={img}
                         loading="lazy"
                         alt={`Thumbnail ${index}`}
                         className="w-full h-full object-cover"

@@ -2,13 +2,13 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { FaSpinner } from "react-icons/fa";
+import { FaSpinner, FaPlus, FaTimes } from "react-icons/fa";
 import DashboardLayout from "./DashboardLayout";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
 const AddProduct = ({ onProductAdded }) => {
-  const [imagePreviews, setImagePreviews] = useState([null, null, null, null]);
+  const [imagePreviews, setImagePreviews] = useState([]);
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
@@ -37,6 +37,25 @@ const AddProduct = ({ onProductAdded }) => {
     setImagePreviews(updatedPreviews);
   };
 
+  const addImageField = () => {
+    if (imagePreviews.length < 8) {
+      setImagePreviews([...imagePreviews, null]);
+      setForm((prev) => ({ ...prev, pimages: [...prev.pimages, null] }));
+    } else {
+      toast.error("Maximum 8 images allowed");
+    }
+  };
+
+  const removeImageField = (index) => {
+    const updatedPreviews = [...imagePreviews];
+    updatedPreviews.splice(index, 1);
+    setImagePreviews(updatedPreviews);
+
+    const updatedFiles = [...form.pimages];
+    updatedFiles.splice(index, 1);
+    setForm((prev) => ({ ...prev, pimages: updatedFiles }));
+  };
+
   const handleChange = (e) => {
     const { name, value, files } = e.target;
 
@@ -57,6 +76,11 @@ const AddProduct = ({ onProductAdded }) => {
     e.preventDefault();
     setLoading(true);
 
+    // Filter out any null values from images
+    const filteredImages = form.pimages.filter(
+      (file) => file !== null && file !== undefined
+    );
+
     try {
       const formData = new FormData();
       formData.append("pname", form.pname);
@@ -67,7 +91,7 @@ const AddProduct = ({ onProductAdded }) => {
       formData.append("pcategory", form.pcategory);
       formData.append("pdiscount", form.pdiscount || "0");
 
-      form.pimages.forEach((file) => {
+      filteredImages.forEach((file) => {
         formData.append("pimages", file);
       });
 
@@ -97,12 +121,12 @@ const AddProduct = ({ onProductAdded }) => {
       });
 
       // ✅ Reset image previews
-      setImagePreviews([null, null, null, null]);
+      setImagePreviews([]);
 
       if (onProductAdded) onProductAdded();
     } catch (err) {
       console.error("Error adding product:", err);
-      alert("❌ Failed to add product. Please try again.");
+      toast.error("Failed to add product. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -126,7 +150,7 @@ const AddProduct = ({ onProductAdded }) => {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="max-w-3xl mx-auto bg-white rounded-2xl shadow-lg p-8"
+          className="max-w-4xl mx-auto bg-white rounded-2xl shadow-lg p-8"
         >
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="grid md:grid-cols-2 gap-4">
@@ -223,35 +247,64 @@ const AddProduct = ({ onProductAdded }) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2 text-gray-700">
-                Upload up to 4 Images
-              </label>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                {[0, 1, 2, 3].map((index) => (
-                  <label
-                    key={index}
-                    className="relative border-2 border-dashed rounded-lg h-32 flex items-center justify-center bg-gray-50 cursor-pointer overflow-hidden group"
-                  >
-                    {imagePreviews[index] ? (
-                      <img
-                        src={imagePreviews[index]}
-                        alt={`preview-${index}`}
-                        className="object-cover w-full h-full"
-                      />
-                    ) : (
-                      <span className="text-gray-400 text-sm">
-                        Click to Upload
-                      </span>
-                    )}
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="absolute inset-0 opacity-0 cursor-pointer"
-                      onChange={(e) => handleImageChange(e, index)}
-                    />
-                  </label>
-                ))}
+              <div className="flex justify-between items-center mb-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Upload Images (Optional, up to 8)
+                </label>
+                <button
+                  type="button"
+                  onClick={addImageField}
+                  disabled={imagePreviews.length >= 8}
+                  className="flex items-center text-sm text-blue-500 hover:text-blue-700 disabled:text-gray-400 disabled:cursor-not-allowed"
+                >
+                  <FaPlus className="mr-1" /> Add Image
+                </button>
               </div>
+              {imagePreviews.length === 0 ? (
+                <div className="text-center py-4 border border-dashed rounded-lg bg-gray-50">
+                  <p className="text-gray-500 mb-2">No images added</p>
+                  <button
+                    type="button"
+                    onClick={addImageField}
+                    className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
+                  >
+                    Add First Image
+                  </button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                  {imagePreviews.map((preview, index) => (
+                    <div key={index} className="relative">
+                      <label className="relative border-2 border-dashed rounded-lg h-32 flex items-center justify-center bg-gray-50 cursor-pointer overflow-hidden group">
+                        {preview ? (
+                          <img
+                            src={preview}
+                            alt={`preview-${index}`}
+                            className="object-cover w-full h-full"
+                          />
+                        ) : (
+                          <span className="text-gray-400 text-sm">
+                            Click to Upload
+                          </span>
+                        )}
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="absolute inset-0 opacity-0 cursor-pointer"
+                          onChange={(e) => handleImageChange(e, index)}
+                        />
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => removeImageField(index)}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-md hover:bg-red-600"
+                      >
+                        <FaTimes size={14} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div>

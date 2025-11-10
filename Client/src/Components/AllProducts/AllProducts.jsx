@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FaHeart, FaRegHeart, FaStar, FaSearch } from "react-icons/fa";
-import { ShoppingCart, ArrowRight } from "lucide-react";
+import { FaHeart, FaRegHeart, FaStar, FaSearch, FaTimes } from "react-icons/fa";
+import { ShoppingCart, Filter, Grid, Layout, Sliders } from "lucide-react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import AutoScrollCarousel from "./Carousel";
 import aboutBg from "/images/border.jpg";
-import { Box, Skeleton, Chip } from "@mui/material";
+import { Skeleton } from "@mui/material";
 import AnimatedUnderline from "../AnimatedUnderline/AnimatedUnderline";
 import { useMemo } from "react";
 
@@ -17,13 +17,16 @@ const AllProducts = () => {
     });
   }, []);
 
-  const { category } = useParams();
+  const { category: categoryParam } = useParams();
+  const category = categoryParam ? decodeURIComponent(categoryParam) : null;
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOption, setSortOption] = useState("newest");
   const [visibleProducts, setVisibleProducts] = useState(12);
   const [selectedCategory, setSelectedCategory] = useState(category || "All");
+  const [viewMode, setViewMode] = useState("masonry");
+  const [showFilters, setShowFilters] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -66,16 +69,39 @@ const AllProducts = () => {
     fetchProducts();
   }, []);
 
-  const categories = ["All", ...new Set(products.map((p) => p.category))];
+  const categories = [
+    "All",
+    "Mavala",
+    "Maharaj",
+    "Shastra (Weapons)",
+    "Miniature Weapons",
+    "Miniatures",
+    "Spiritual Statues",
+    "Car Dashboard",
+    "Frame Collection",
+    "Shilekhana (Weapon Vault)",
+    "Symbolic & Cultural Artefacts",
+    "Sanch",
+    "Keychains",
+    "Jewellery",
+    "Historical Legends",
+    "Badges",
+    "Taxidermy",
+  ];
+
+  const normalize = (str) =>
+    str
+      ? str
+          .toLowerCase()
+          .replace(/\s+/g, "")
+          .replace(/[^a-z0-9]/g, "")
+      : "";
 
   const filteredProducts = useMemo(() => {
     return products
       .filter((p) => {
         if (selectedCategory === "All") return true;
-        return (
-          p.category?.toLowerCase().trim() ===
-          selectedCategory.toLowerCase().trim()
-        );
+        return normalize(p.category) === normalize(selectedCategory);
       })
       .filter(
         (p) =>
@@ -127,8 +153,19 @@ const AllProducts = () => {
     return stars;
   };
 
+  // Masonry layout columns
+  const getMasonryColumns = () => {
+    const columns = [[], [], []];
+    filteredProducts.slice(0, visibleProducts).forEach((product, index) => {
+      columns[index % 3].push(product);
+    });
+    return columns;
+  };
+
+  const masonryColumns = getMasonryColumns();
+
   return (
-    <div className="relative min-h-screen bg-gradient-to-b from-amber-50 to-amber-100 font-times">
+    <div className="min-h-screen bg-gradient-to-b from-amber-50 to-amber-100 font-times">
       {/* Background Texture */}
       <div
         className="fixed inset-0 z-0 opacity-10"
@@ -139,119 +176,174 @@ const AllProducts = () => {
         }}
       />
 
-      {/* Main Content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 mt-3">
-        {/* Carousel */}
-        <AutoScrollCarousel />
+      <div className="my-10">
+        <AutoScrollCarousel products={products.slice(0, 10)} />
+      </div>
 
-        {/* Hero Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
+      {/* Main Content */}
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header */}
+        <motion.header
+          initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16 mt-8"
+          className="mb-12 text-center"
         >
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-normal text-amber-900 mb-6 leading-tight">
-            <AnimatedUnderline>Heritage Artisans Collection</AnimatedUnderline>
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-normal text-amber-900 mb-4">
+            Artisan <span className="italic text-amber-700">Heritage</span>
           </h1>
-          <p className="text-lg md:text-xl text-amber-800 max-w-3xl mx-auto leading-relaxed">
-            Handcrafted with devotion, each piece tells a story of our glorious
-            past and spiritual traditions.
+          <p className="text-amber-800 max-w-2xl mx-auto text-lg">
+            Discover handcrafted treasures that embody centuries of tradition
+            and spiritual significance
           </p>
-        </motion.div>
+        </motion.header>
 
-        {/* Search and Filter Section */}
-        <div className="mb-12">
-          <div className="flex flex-col md:flex-row gap-4 items-center justify-between mb-6">
-            {/* Search Bar */}
-            <div className="relative w-full md:w-1/2">
-              <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-amber-600" />
-              <input
-                type="text"
-                placeholder="Search products..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 rounded-lg border border-amber-200 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 bg-white/80 text-amber-900 placeholder-amber-400 transition-all duration-300"
-              />
-            </div>
-
-            {/* Sort Dropdown */}
-            <div className="w-full md:w-auto">
-              <select
-                value={sortOption}
-                onChange={(e) => setSortOption(e.target.value)}
-                className="w-full px-4 py-3 rounded-lg border border-amber-200 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 bg-white/80 text-amber-900 transition-all duration-300"
+        {/* Search and Controls */}
+        <div className="flex flex-col lg:flex-row gap-6 mb-10">
+          {/* Search Bar */}
+          <div className="relative flex-1 max-w-2xl mx-auto lg:mx-0">
+            <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-amber-600" />
+            <input
+              type="text"
+              placeholder="Search our collection..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-12 pr-4 py-3 rounded-full bg-white border border-amber-200 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-amber-900 placeholder-amber-400 transition-all duration-300"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-amber-600 hover:text-amber-800"
               >
-                <option value="newest">Newest First</option>
-                <option value="price-low">Price: Low to High</option>
-                <option value="price-high">Price: High to Low</option>
-                <option value="rating">Highest Rated</option>
-              </select>
-            </div>
+                <FaTimes />
+              </button>
+            )}
           </div>
 
-          {category && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="text-center mb-8"
-            >
-              <h2 className="text-3xl md:text-4xl font-normal text-amber-900 capitalize">
-                {category}
-              </h2>
-              <p className="text-amber-700 mt-2">
-                {filteredProducts.length}{" "}
-                {filteredProducts.length === 1 ? "item" : "items"} in this
-                collection
-              </p>
-            </motion.div>
-          )}
+          {/* View Controls */}
+          <div className="flex items-center justify-center gap-4">
+            <div className="flex bg-white rounded-full p-1 border border-amber-200">
+              <button
+                onClick={() => setViewMode("masonry")}
+                className={`p-2 rounded-full ${
+                  viewMode === "masonry"
+                    ? "bg-amber-600 text-white"
+                    : "text-amber-600 hover:text-amber-800"
+                }`}
+                title="Masonry View"
+              >
+                <Layout size={18} />
+              </button>
+              <button
+                onClick={() => setViewMode("grid")}
+                className={`p-2 rounded-full ${
+                  viewMode === "grid"
+                    ? "bg-amber-600 text-white"
+                    : "text-amber-600 hover:text-amber-800"
+                }`}
+                title="Grid View"
+              >
+                <Grid size={18} />
+              </button>
+            </div>
 
-          {/* Category Filter */}
-          <div className="mb-6 w-50">
-            <label className="block text-amber-800 mb-2 font-medium">
-              Filter by Category
-            </label>
-            <select
-              value={selectedCategory}
-              onChange={(e) => {
-                const newCategory = e.target.value;
-                setSelectedCategory(newCategory);
-                if (newCategory === "All") {
-                  navigate("/products");
-                } else {
-                  navigate(`/products/category/${newCategory}`);
-                }
-              }}
-              className="w-full px-4 py-3 rounded-lg border border-amber-200 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 bg-white/80 text-amber-900 transition-all duration-300"
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-full ${
+                showFilters
+                  ? "bg-amber-600 text-white"
+                  : "bg-white text-amber-800 border border-amber-200 hover:bg-amber-50"
+              }`}
             >
-              <option value="All">All Categories</option>
-              <option value="Mavala">Mavala</option>
-              <option value="Maharaj">Maharaj</option>
-              <option value="Shastra (Weapons)">Shastra (Weapons)</option>
-              <option value="Miniature Weapons">Miniature Weapons</option>
-              <option value="Maniatures">Maniatures</option>
-              <option value="Spiritual Statues">Spiritual Statues</option>
-              <option value="Car Dashboard">Car Dashboard</option>
-              <option value="Frame Collection">Frame Collection</option>
-              <option value="Shilekhana (Weapon Vault)">
-                Shilekhana (Weapon Vault)
-              </option>
-              <option value="Symbolic & Cultural Artefacts">
-                Symbolic & Cultural Artefacts
-              </option>
-              <option value="Sanch">Sanch</option>
-              <option value="Keychains">Keychains</option>
-              <option value="Jewellery">Jewellery</option>
-              <option value="Historical Legends">Historical Legends</option>
-              <option value="Badges">Badges</option>
-              <option value="Taxidermy">Taxidermy</option>
-            </select>
+              <Sliders size={16} />
+              <span>Filters</span>
+            </button>
           </div>
         </div>
 
-        {/* Products Grid */}
+        {/* Filters Panel */}
+        <AnimatePresence>
+          {showFilters && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3 }}
+              className="mb-8 overflow-hidden"
+            >
+              <div className="bg-white rounded-xl p-6 border border-amber-200 shadow-sm">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <h3 className="text-lg font-medium mb-3 text-amber-900">
+                      Category
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
+                      {categories.map((cat) => (
+                        <button
+                          key={cat}
+                          onClick={() => {
+                            setSelectedCategory(cat);
+                            if (cat === "All") {
+                              navigate("/products");
+                            } else {
+                              navigate(
+                                `/products/category/${encodeURIComponent(cat)}`
+                              );
+                            }
+                          }}
+                          className={`px-3 py-1 rounded-full text-sm transition-colors ${
+                            selectedCategory === cat
+                              ? "bg-amber-600 text-white"
+                              : "bg-amber-100 text-amber-800 hover:bg-amber-200"
+                          }`}
+                        >
+                          {cat}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-medium mb-3 text-amber-900">
+                      Sort By
+                    </h3>
+                    <select
+                      value={sortOption}
+                      onChange={(e) => setSortOption(e.target.value)}
+                      className="w-full px-4 py-2 rounded-lg bg-amber-50 border border-amber-200 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-amber-900"
+                    >
+                      <option value="newest">Newest First</option>
+                      <option value="price-low">Price: Low to High</option>
+                      <option value="price-high">Price: High to Low</option>
+                      {/* <option value="rating">Highest Rated</option> */}
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Category Title */}
+        {category && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="text-center mb-8"
+          >
+            <h2 className="text-3xl md:text-4xl font-normal text-amber-900 capitalize mb-2">
+              {category}
+            </h2>
+            <p className="text-amber-700">
+              {filteredProducts.length}{" "}
+              {filteredProducts.length === 1 ? "unique piece" : "unique pieces"}{" "}
+              in this collection
+            </p>
+          </motion.div>
+        )}
+
+        {/* Products Display */}
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {Array.from({ length: 8 }).map((_, idx) => (
@@ -260,125 +352,214 @@ const AllProducts = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: idx * 0.05 }}
+                className="bg-white rounded-xl overflow-hidden shadow-sm border border-amber-100"
               >
-                <div className="bg-white/80 rounded-xl overflow-hidden shadow-sm border border-amber-100">
-                  <Skeleton variant="rectangular" className="w-full h-48" />
-                  <div className="p-4">
-                    <Skeleton className="w-3/4 h-6 mb-2" />
-                    <Skeleton className="w-1/2 h-4 mb-4" />
-                    <Skeleton className="w-full h-10" />
-                  </div>
+                <Skeleton
+                  variant="rectangular"
+                  className="w-full h-48 bg-amber-100"
+                />
+                <div className="p-4">
+                  <Skeleton className="w-3/4 h-6 mb-2 bg-amber-100" />
+                  <Skeleton className="w-1/2 h-4 mb-4 bg-amber-100" />
+                  <Skeleton className="w-full h-10 bg-amber-100" />
                 </div>
               </motion.div>
             ))}
           </div>
         ) : filteredProducts.length > 0 ? (
           <>
-            <motion.div
-              layout
-              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
-            >
-              <AnimatePresence>
+            {/* Masonry Layout */}
+            {viewMode === "masonry" ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {masonryColumns.map((column, colIndex) => (
+                  <div key={colIndex} className="flex flex-col gap-6">
+                    {column.map((product) => (
+                      <motion.div
+                        key={product._id}
+                        layout
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4 }}
+                        whileHover={{ y: -5 }}
+                        className="bg-white rounded-xl overflow-hidden shadow-sm border border-amber-100 group"
+                      >
+                        <Link to={`/product-details/${product._id}`}>
+                          <div className="relative overflow-hidden">
+                            <div className="h-60 overflow-hidden bg-amber-50 flex items-center justify-center">
+                              <motion.img
+                                src={product.product_image[0].replace(
+                                  "/upload/",
+                                  "/upload/w_600,q_auto,f_auto/"
+                                )}
+                                alt={product.product_name}
+                                className="max-h-56 w-auto object-contain transition-transform duration-500 group-hover:scale-105"
+                                loading="lazy"
+                              />
+                            </div>
+
+                            <div className="absolute top-3 left-3 flex gap-2">
+                              {product.isNew && (
+                                <span className="bg-green-600 text-white text-xs px-2 py-1 rounded-full">
+                                  New
+                                </span>
+                              )}
+                              {product.product_price > 5000 && (
+                                <span className="bg-amber-700 text-white text-xs px-2 py-1 rounded-full">
+                                  Premium
+                                </span>
+                              )}
+                            </div>
+
+                            <button
+                              onClick={(e) => {
+                                e.preventDefault();
+                                toggleFavorite(product._id);
+                              }}
+                              className="absolute top-3 right-3 p-2 bg-white/80 rounded-full backdrop-blur-sm hover:bg-rose-100 transition-colors"
+                            >
+                              {product.isFavorite ? (
+                                <FaHeart className="text-rose-500" />
+                              ) : (
+                                <FaRegHeart className="text-amber-600" />
+                              )}
+                            </button>
+                          </div>
+
+                          <div className="p-4">
+                            <h3 className="text-lg font-medium text-amber-900 mb-2 line-clamp-1">
+                              {product.product_name}
+                            </h3>
+
+                            {/* <div className="flex items-center mb-2">
+                              <div className="flex mr-2">
+                                {renderStars(product.rating)}
+                              </div>
+                              <span className="text-sm text-amber-600">
+                                ({product.rating.toFixed(1)})
+                              </span>
+                            </div> */}
+
+                            {product.product_size !== "0" ? (
+                              <p className="text-sm text-amber-700 mb-3">
+                                Size: {product.product_size}
+                              </p>
+                            ) : (
+                              <p className="text-sm text-amber-700 mb-3 line-clamp-2">
+                                {product.product_description
+                                  .split(" ")
+                                  .slice(0, 12)
+                                  .join(" ")}
+                                ...
+                              </p>
+                            )}
+
+                            <div className="flex justify-between items-center mt-4">
+                              <div>
+                                <span className="text-xl font-bold text-amber-900">
+                                  ₹{product.product_price.toLocaleString()}
+                                </span>
+                                {product.product_discount > 0 && (
+                                  <span className="ml-2 text-sm text-green-600">
+                                    {product.product_discount}% off
+                                  </span>
+                                )}
+                              </div>
+                              <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                className="flex items-center gap-1 px-3 py-2 text-sm font-medium bg-amber-600 text-white rounded-lg transition hover:bg-amber-700"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  // Add to cart functionality
+                                }}
+                              >
+                                <ShoppingCart size={16} />
+                                <span>Add</span>
+                              </motion.button>
+                            </div>
+                          </div>
+                        </Link>
+                      </motion.div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            ) : viewMode === "grid" ? (
+              // Grid Layout
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {filteredProducts.slice(0, visibleProducts).map((product) => (
                   <motion.div
                     key={product._id}
                     layout
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
                     transition={{ duration: 0.3 }}
-                    whileHover={{
-                      y: -5,
-                      boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)",
-                    }}
-                    className="relative group bg-white overflow-hidden shadow-sm border border-gray-200"
+                    whileHover={{ y: -5 }}
+                    className="bg-white rounded-xl overflow-hidden shadow-sm border border-amber-100 group"
                   >
-                    <Link
-                      to={`/product-details/${product._id}`}
-                      className="block h-full"
-                    >
-                      <div className="h-full flex flex-col">
-                        {/* Product Image Container - Amazon Style */}
-                        <div className="relative h-60 w-full overflow-hidden bg-gray-100">
+                    <Link to={`/product-details/${product._id}`}>
+                      <div className="relative overflow-hidden">
+                        <div className="h-52 overflow-hidden bg-amber-50 flex items-center justify-center">
                           <motion.img
                             src={product.product_image[0].replace(
                               "/upload/",
-                              "/upload/w_400,q_auto,f_auto/"
+                              "/upload/w_600,q_auto,f_auto/"
                             )}
                             alt={product.product_name}
-                            className="w-full h-full object-cover p-2"
+                            className="max-h-48 w-auto object-contain transition-transform duration-500 group-hover:scale-105"
                             loading="lazy"
-                            initial={{ scale: 1 }}
-                            whileHover={{
-                              scale: 1.05,
-                              transition: { duration: 0.3 },
-                            }}
                           />
-
-                          {/* Badges */}
-                          <div className="absolute top-3 left-3 flex gap-2">
-                            {product.isNew && (
-                              <span className="bg-green-600 text-white text-xs px-2 py-1 rounded-full">
-                                New
-                              </span>
-                            )}
-                            {product.product_price > 5000 && (
-                              <span className="bg-amber-800 text-white text-xs px-2 py-1 rounded-full">
-                                Premium
-                              </span>
-                            )}
-                          </div>
                         </div>
 
-                        {/* Product Info */}
-                        <div className="p-4 flex flex-col flex-grow border-t border-gray-100">
-                          <h3 className="text-lg font-medium text-gray-900 mb-2 line-clamp-2">
-                            {product.product_name}
-                          </h3>
-
-                          {/* Size */}
-                          {product.product_size !== "0" ? (
-                            <p className="text-sm text-gray-500 mb-3">
-                              Size: {product.product_size}
-                            </p>
-                          ) : (
-                            <p className="text-sm text-black mb-3">
-                              {product.product_description
-                                .split(" ")
-                                .slice(0, 10)
-                                .join(" ")}
-                              ...
-                            </p>
+                        <div className="absolute top-3 left-3 flex gap-2">
+                          {product.isNew && (
+                            <span className="bg-green-600 text-white text-xs px-2 py-1 rounded-full">
+                              New
+                            </span>
                           )}
+                          {product.product_price > 5000 && (
+                            <span className="bg-amber-700 text-white text-xs px-2 py-1 rounded-full">
+                              Premium
+                            </span>
+                          )}
+                        </div>
+                      </div>
 
-                          {/* Price and CTA */}
-                          <div className="mt-auto flex justify-between items-center">
-                            <div>
-                              <span className="text-xl font-bold text-gray-900">
-                                ₹{product.product_price.toLocaleString()}
+                      <div className="p-4">
+                        <h3 className="text-lg font-medium text-amber-900 mb-2 line-clamp-1">
+                          {product.product_name}
+                        </h3>
+
+                        <div className="flex justify-between items-center mt-4">
+                          <div>
+                            <span className="text-xl font-bold text-amber-900">
+                              ₹{product.product_price.toLocaleString()}
+                            </span>
+                            {product.product_discount > 0 && (
+                              <span className="ml-2 text-sm text-green-600">
+                                {product.product_discount}% off
                               </span>
-                              {product.product_discount > 0 && (
-                                <span className="ml-2 text-sm text-green-600">
-                                  {product.product_discount}% off
-                                </span>
-                              )}
-                            </div>
-                            <motion.button
-                              whileHover={{ scale: 1.05 }}
-                              whileTap={{ scale: 0.95 }}
-                              className="flex items-center gap-1 px-3 py-2 text-sm font-medium bg-amber-600 text-white rounded-md transition hover:bg-amber-700"
-                            >
-                              <ShoppingCart size={16} />
-                              <span className="hidden sm:inline">Add</span>
-                            </motion.button>
+                            )}
                           </div>
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className="flex items-center gap-1 px-3 py-2 text-sm font-medium bg-amber-600 text-white rounded-lg transition hover:bg-amber-700"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              // Add to cart functionality
+                            }}
+                          >
+                            <ShoppingCart size={16} />
+                            <span>Add</span>
+                          </motion.button>
                         </div>
                       </div>
                     </Link>
                   </motion.div>
                 ))}
-              </AnimatePresence>
-            </motion.div>
+              </div>
+            ) : null}
 
             {/* Load More Button */}
             {visibleProducts < filteredProducts.length && (
@@ -395,7 +576,7 @@ const AllProducts = () => {
             )}
           </>
         ) : (
-          <div className="text-center py-16 bg-white/80 rounded-xl">
+          <div className="text-center py-16 bg-white/80 rounded-xl border border-amber-200">
             <h3 className="text-2xl font-medium text-amber-900 mb-3">
               No products found
             </h3>
@@ -412,7 +593,7 @@ const AllProducts = () => {
               className="flex items-center gap-2 px-6 py-3 bg-amber-100 text-amber-800 rounded-full font-medium transition hover:bg-amber-200 mx-auto"
             >
               Reset filters
-              <ArrowRight size={16} />
+              <FaTimes />
             </button>
           </div>
         )}

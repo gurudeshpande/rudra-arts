@@ -1,8 +1,8 @@
-// src/config/cloudinary.js
+// src/config/cloudinary.js (ESM)
 import { v2 as cloudinary } from "cloudinary";
-require("dotenv").config(); // ✅ Load .env if not already loaded globally
+import dotenv from "dotenv";
+dotenv.config();
 
-// Validate required env variables (optional but professional)
 if (
   !process.env.CLOUD_NAME ||
   !process.env.CLOUD_API_KEY ||
