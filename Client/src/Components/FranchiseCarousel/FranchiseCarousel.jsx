@@ -159,7 +159,8 @@ const FranchiseCarousel = () => {
       logo: "/images/rudra_arts_logo_single.png",
       image: "/images/narhe.jpg",
       name: "Rudra Arts Narhe",
-      description: "Narhe, Pune",
+      description:
+        "Jayraj Homes, Sinhgad Rd, near Back Gate Of Smt Kashibai Navle Hospital, Phase 2, Wadgaon Budruk, Narhe, Pune, Maharashtra 411041",
     },
   ];
 
