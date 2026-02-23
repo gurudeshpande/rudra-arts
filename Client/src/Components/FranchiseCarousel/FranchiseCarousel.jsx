@@ -155,6 +155,12 @@ const FranchiseCarousel = () => {
       description:
         "B-1-A, Deepa Arihant Building, Near Maneklal Ground, Ghatkopar West, Mumbai 400086",
     },
+    {
+      logo: "/images/rudra_arts_logo_single.png",
+      image: "/images/narhe.jpg",
+      name: "Rudra Arts Narhe",
+      description: "Narhe, Pune",
+    },
   ];
 
   return (
